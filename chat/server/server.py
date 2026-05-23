@@ -64,24 +64,28 @@ class Server():
             self.clients.remove(client)
 
     def receive_files(self,client,file):
+        print("Receive_files iniciada!")
         file=file.decode()
         extract_file_name=file.split("f1l3n4m3c0d&")
         extract_file_name2=extract_file_name[1].split("3NDF1L3N4M3C0D&")
         file_name=extract_file_name2[0]
         extract_file_length=extract_file_name2[1].split("4R¢H1V3L£Nb")
         file_length=int(extract_file_length[0])
-        print("Receive_files iniciada!")
+        print("Nome do arquivo: ",file_name)
+        print("Cliente: ",client)
+        print("Tamanho esperado: ",file_length)
+        print("Tamanho até o momento: ",len(file))
         while True:
             try:
-                if file_length==len(str(file)):
+                if file_length==len(file):
                     break
                 lines=client.recv(2048)
-                file=file+str(lines)
+                file=file+lines.decode() 
             except Exception as error:
                 print(f"Ocorreu um erro na Receive_files: {error}")
                 self.delete_client(client)
                 break
-        file_bytes=extract_file_length[1]
+        file_bytes=extract_file_length[1] #arrumar essa parte
         path=os.getcwd()
         os.makedirs(name="downloads",exist_ok=True)
         with open(f"{path}\\downloads\\{file_name}","wb") as f:

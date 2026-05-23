@@ -10,5 +10,4 @@ client="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£N
 servid="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&"
 
 
-
 print(len(servid))

@@ -46,7 +46,6 @@ class  Client:
         file_length=len(lines)+len(file)+len("4R¢H1V3L£N")
         file_length=file_length+len(str(file_length))
         file=file+str(file_length)+"4R¢H1V3L£N"+lines
-        print(file)
         self.client.sendall(file.encode())
         print("Código de fim de arquivo enviado!")
         
