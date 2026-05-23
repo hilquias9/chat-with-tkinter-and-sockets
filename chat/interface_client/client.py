@@ -8,7 +8,8 @@ class  Client:
         self.client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.client.settimeout(1)
         self.on_message=on_message
-        self.client.connect(("172.16.2.27",7777))
+        self.client.connect(("192.168.3.102",7777))
+        print("CONECTADO!")
         thread=threading.Thread(target=self.receive_messages,daemon=True)
         thread.start()
     
@@ -24,6 +25,7 @@ class  Client:
     
     def receive_messages(self):
         try:
+            print("Receive_messages iniciada!")
             while True:
                 try:
                     msg=self.client.recv(2048)
@@ -38,14 +40,14 @@ class  Client:
         
     def send_file(self,filename:str,directory:str):
         print("Função send_file iniciada!")
-        file="f1l3n4m3c0d&"+filename+"3NDF1L3N4M3C0D&"
+        file=b"f1l3n4m3c0d&"+filename.encode()+b"3NDF1L3N4M3C0D&"
         with open(directory,"rb") as f:
             lines=f.read()
-            lines=str(lines)
-            lines=lines+"3NDF1L3N4M3C0D&"
-        file_length=len(lines)+len(file)+len("4R¢H1V3L£N")
+            print("Len de lines: ",len(lines))
+            lines=lines+b"3NDF1L3N4M3C0D&"
+        file_length=len(lines)+len(file)+len("4RKH1V3L3N")
         file_length=file_length+len(str(file_length))
-        file=file+str(file_length)+"4R¢H1V3L£N"+lines
-        self.client.sendall(file.encode())
-        print("Código de fim de arquivo enviado!")
+        file=file+str(file_length).encode()+b"4RKH1V3L3N"+lines
+        self.client.sendall(file)
+        print(f"Arquivo: {filename} {file_length} enviado com sucesso!")
         

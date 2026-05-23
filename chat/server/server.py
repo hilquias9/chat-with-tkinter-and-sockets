@@ -7,7 +7,7 @@ class Server():
         self.clients=[]
         self.server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server.bind(("172.16.2.27",7777))
+        self.server.bind(("192.168.3.102",7777))
         self.server.listen(1)
         print("Servidor Iniciado!")
         self.server.settimeout(1)
@@ -65,31 +65,34 @@ class Server():
 
     def receive_files(self,client,file):
         print("Receive_files iniciada!")
-        file=file.decode()
-        extract_file_name=file.split("f1l3n4m3c0d&")
-        extract_file_name2=extract_file_name[1].split("3NDF1L3N4M3C0D&")
-        file_name=extract_file_name2[0]
-        extract_file_length=extract_file_name2[1].split("4R¢H1V3L£Nb")
-        file_length=int(extract_file_length[0])
+        extract_file_name=file.split(b"f1l3n4m3c0d&")
+        extract_file_name2=extract_file_name[1].split(b"3NDF1L3N4M3C0D&")
+        file_name=extract_file_name2[0].decode()
+        extract_file_length=extract_file_name2[1].split(b"4RKH1V3L3N")
+        file_length=int(extract_file_length[0].decode())
+        file_bytes=extract_file_length[1]
+        total=len(file)
         print("Nome do arquivo: ",file_name)
-        print("Cliente: ",client)
+        print("Cliente: ",client.getpeername()[0])
         print("Tamanho esperado: ",file_length)
         print("Tamanho até o momento: ",len(file))
         while True:
             try:
-                if file_length==len(file):
+                if file_length==total:
                     break
                 lines=client.recv(2048)
-                file=file+lines.decode() 
+                if not lines:
+                    break
+                file_bytes=file_bytes+lines
+                total=total+len(lines)
             except Exception as error:
                 print(f"Ocorreu um erro na Receive_files: {error}")
                 self.delete_client(client)
                 break
-        file_bytes=extract_file_length[1] #arrumar essa parte
         path=os.getcwd()
         os.makedirs(name="downloads",exist_ok=True)
         with open(f"{path}\\downloads\\{file_name}","wb") as f:
-            f.write(file_bytes.encode())
+            f.write(file_bytes.split(b"3NDF1L3N4M3C0D&")[0])
             print("Arquivo escrito!")
         print("Função receive_files encerrada!")
 
