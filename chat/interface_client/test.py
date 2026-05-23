@@ -1,36 +1,14 @@
-import socket
-import threading
+nome="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&"
+extract_file_name=nome.split("f1l3n4m3c0d&")
+extract_file_name2=extract_file_name[1].split("3NDF1L3N4M3C0D&")
+file_name=extract_file_name2[0]
+extract_file_length=extract_file_name2[1].split("4R¢H1V3L£Nb")
+file_length=int(extract_file_length[0])
+file_bytes=extract_file_length[1]
 
-class  Client:
-    def __init__(self):
-        self.client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.client.settimeout(1)
-        self.client.connect(("172.16.2.27",7777))
-        thread=threading.Thread(target=self.receive_messages,args=(self.client,),daemon=True)
-        thread.start()
-    
-    def send_msg(self,msg:str):
-        b_msg=msg.encode()
-        self.client.send(b_msg)
-    
-    def receive_messages(self):
-        while True:
-            try:
-                msg=self.client.recv(2048)
-                print("chegou uma mensagem")
-                if msg:
-                    return msg
-            except Exception as error:
-                print(f"Ocorreu um erro na receive_messages classe Clients, erro: {error}")
-                self.client.close()
+client="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&".encode()
+servid="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&"
 
 
-a=[11,34,6546,565]
 
-print(a)
-
-
-contador=0
-while contador<len(a):
-    print(a[contador])
-    contador+=1
+print(len(servid))

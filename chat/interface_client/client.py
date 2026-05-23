@@ -2,6 +2,7 @@ import socket
 import threading
 from tkinter import messagebox
 
+
 class  Client:
     def __init__(self,on_message):
         self.client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -26,7 +27,7 @@ class  Client:
             while True:
                 try:
                     msg=self.client.recv(2048)
-                    if msg:
+                    if b"&ND_F1L3_C@D3" in msg:
                         self.on_message(msg)
                 except socket.timeout:
                     continue
@@ -34,4 +35,18 @@ class  Client:
                     self.client.close()
         except KeyboardInterrupt:
             print(f"A conexão foi cancelada ctrl + c")
+        
+    def send_file(self,filename:str,directory:str):
+        print("Função send_file iniciada!")
+        file="f1l3n4m3c0d&"+filename+"3NDF1L3N4M3C0D&"
+        with open(directory,"rb") as f:
+            lines=f.read()
+            lines=str(lines)
+            lines=lines+"3NDF1L3N4M3C0D&"
+        file_length=len(lines)+len(file)+len("4R¢H1V3L£N")
+        file_length=file_length+len(str(file_length))
+        file=file+str(file_length)+"4R¢H1V3L£N"+lines
+        print(file)
+        self.client.sendall(file.encode())
+        print("Código de fim de arquivo enviado!")
         

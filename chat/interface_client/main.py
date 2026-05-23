@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import filedialog
 from client import Client
+import os
 
 
 class Interface(Frame):
@@ -18,8 +20,12 @@ class Interface(Frame):
         self.mid_entry.place(x=80,y=680,width=5,relwidth=0.8)
         self.mid_entry.bind("<Return>",self.entry_enter_pressed)
 
-        self.mid_button=Button(self.mid_frame,text="Enviar",command=self.mid_button_func)
-        self.mid_button.place(width=50,y=677,x=710)
+        self.mid_button_send_message=Button(self.mid_frame,text="➜",command=self.mid_button_send_message_func)
+        self.mid_button_send_message.place(width=50,y=677,x=710)
+
+        self.mid_button_send_files=Button(self.mid_frame,text="📄", command=self.mid_button_send_files_func)
+        self.mid_button_send_files.place(width=50,y=677,x=16)
+
 
         self.text_frame=Frame(self.mid_frame,bg="#333A41")
         self.text_frame.place(y=5,relheight=0.9,relwidth=1)
@@ -39,14 +45,21 @@ class Interface(Frame):
         self.left_frame.place(relheight=1,x=0,relwidth=0.2004)
 
     def entry_enter_pressed(self,event):
-        self.mid_button_func()
+        self.mid_button_send_message_func()
     
-    def mid_button_func(self):
+    def mid_button_send_message_func(self):
         if self.mid_entry.get().strip()!="":
             mensagem="Usuario: "+self.mid_entry.get()+"\n"
             self.mid_entry.delete(0,END)
             self.put_message_on_text(mensagem)
+            mensagem="M3SAG3C0O%$D3"+mensagem
             cliente.send_msg(mensagem)
+    
+    def mid_button_send_files_func(self):
+        directory=filedialog.askopenfilename()
+        filename=os.path.basename(directory)
+        cliente.send_file(filename=filename,directory=directory)
+        
 
     def put_message_on_text(self,msg:str):
         self.text.config(state="normal")
@@ -55,7 +68,8 @@ class Interface(Frame):
 
     def add_message_safe(self, msg):
         msg=msg.decode()
-        self.after(0, self.put_message_on_text, msg)
+        msg_splitted=msg.split("M3SAG3C0O%$D3")
+        self.after(0, self.put_message_on_text, msg_splitted[1])
     
 
 if __name__=="__main__":

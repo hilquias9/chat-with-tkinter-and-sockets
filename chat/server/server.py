@@ -1,5 +1,6 @@
 import socket
 import threading
+import os
 
 class Server():
     def __init__(self):
@@ -34,8 +35,11 @@ class Server():
                 msg=client.recv(2048)
                 if not msg:
                     break
-                print(f"Mensagem recebida: {msg}")
-                self.broadcast(msg,client)
+                if b"M3SAG3C0O%$D3" in msg:
+                    self.broadcast(msg,client)
+                elif b"f1l3n4m3c0d&" in msg:
+                    self.receive_files(client,msg)
+
             except Exception as error:
                 print(f"Ocorreu um erro na messages_treatment, erro: {error}")
                 break
@@ -58,5 +62,31 @@ class Server():
             print(f"Usuario desconectado: {client.getpeername()[0]}")
             client.close()
             self.clients.remove(client)
+
+    def receive_files(self,client,file):
+        file=file.decode()
+        extract_file_name=file.split("f1l3n4m3c0d&")
+        extract_file_name2=extract_file_name[1].split("3NDF1L3N4M3C0D&")
+        file_name=extract_file_name2[0]
+        extract_file_length=extract_file_name2[1].split("4R¢H1V3L£Nb")
+        file_length=int(extract_file_length[0])
+        print("Receive_files iniciada!")
+        while True:
+            try:
+                if file_length==len(str(file)):
+                    break
+                lines=client.recv(2048)
+                file=file+str(lines)
+            except Exception as error:
+                print(f"Ocorreu um erro na Receive_files: {error}")
+                self.delete_client(client)
+                break
+        file_bytes=extract_file_length[1]
+        path=os.getcwd()
+        os.makedirs(name="downloads",exist_ok=True)
+        with open(f"{path}\\downloads\\{file_name}","wb") as f:
+            f.write(file_bytes.encode())
+            print("Arquivo escrito!")
+        print("Função receive_files encerrada!")
 
 server=Server()
