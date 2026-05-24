@@ -49,16 +49,21 @@ class Interface(Frame):
     
     def mid_button_send_message_func(self):
         if self.mid_entry.get().strip()!="":
-            mensagem="Usuario: "+self.mid_entry.get()+"\n"
+            message="Usuario: "+self.mid_entry.get()+"\n"
             self.mid_entry.delete(0,END)
-            self.put_message_on_text(mensagem)
-            mensagem="M3SAG3C0O%$D3"+mensagem
-            cliente.send_msg(mensagem)
+            self.put_message_on_text(message)
+            message_model=b"M3SAG3C0O%$D3"+message.encode()
+            message_length=len(message_model)
+            message_length=message_length+len(str(message_length).encode())+len(b"M33SS4GL3N")
+            message=b"M3SAG3C0O%$D3"+(f"{message_length}").encode()+b"M33SS4GL3N"+message.encode()
+            print("Len da message: {}\nLen da variavel message_length: {}".format(len(message),message_length))
+            cliente.send_msg(message)
     
     def mid_button_send_files_func(self):
         directory=filedialog.askopenfilename()
-        filename=os.path.basename(directory)
-        cliente.send_file(filename=filename,directory=directory)
+        if directory:
+            filename=os.path.basename(directory)
+            cliente.send_file(filename=filename,directory=directory)
         
 
     def put_message_on_text(self,msg:str):
@@ -68,8 +73,7 @@ class Interface(Frame):
 
     def add_message_safe(self, msg):
         msg=msg.decode()
-        msg_splitted=msg.split("M3SAG3C0O%$D3")
-        self.after(0, self.put_message_on_text, msg_splitted[1])
+        self.after(0, self.put_message_on_text, msg)
     
 
 if __name__=="__main__":

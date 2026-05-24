@@ -9,4 +9,4 @@ file_bytes=extract_file_length[1]
 client="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&".encode()
 servid="f1l3n4m3c0d&Novo(a) Documento de Texto.txt3NDF1L3N4M3C0D&1044R¢H1V3L£Nb'ihsaduhsadoiusahd'3NDF1L3N4M3C0D&"
 
-print(type(servid.encode()))
+
