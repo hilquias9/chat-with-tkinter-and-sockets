@@ -48,6 +48,8 @@ class Server():
                     self.receive_files(client,msg)
                 elif b"S3NDdUS3N4M3!" in msg:
                     self.receive_username(client,msg)
+                elif b"SERV3R_S3ND_F1LEC0OOODE3" in msg:
+                    self.send_files(client,msg)
 
             except Exception as error:
                 print(f"Ocorreu um erro na messages_treatment, erro: {error}")
@@ -118,6 +120,7 @@ class Server():
                     break
                 file_bytes=file_bytes+lines
                 total=total+len(lines)
+                print(f"total: ",total)
             except Exception as error:
                 print(f"Ocorreu um erro na Receive_files: {error}")
                 self.delete_client(client)
@@ -130,12 +133,18 @@ class Server():
             print("Arquivo escrito!")
         
         print("Função receive_files encerrada!")
-        self.send_files(client,complete_path,file_name)
+        msg=Server_msgs.file_msg(self.clients,client,file_name)
+        self.send_msg(client=client,msg=msg)
+        
 
-    def send_files(self,client,path,filename):
+    def send_files(self,client,msg):
+        filename=msg.split(b"SERV3R_S3ND_F1LEC0OOODE3")[1]
+        filename=filename.decode()
+        path=os.getcwd()
+        complete_path=f"{path}\\downloads\\{filename}"
         print("Função send_file iniciada!")
         file=b"f1l3n4m3c0d&"+filename.encode()+b"3NDF1L3N4M3C0D&"
-        with open(path,"rb") as f:
+        with open(complete_path,"rb") as f:
             lines=f.read()
             print("Len de lines: ",len(lines))
             lines=lines+b"3NDF1L3N4M3C0D&"
@@ -155,6 +164,28 @@ class Server():
                 self.clients[index]["username_past"].append(username.decode())
                 print("Nome de usuario adicionado com sucesso!")
         print(self.clients)
+    
+    def send_msg(self,client,msg):
+        for index in self.clients.keys():
+                if self.clients[index]["client"]!=client:
+                    try:
+                        self.clients[index]["client"].send(msg)
+                    except Exception as error:
+                        self.delete_client(self.clients[index]["client"])
+                        print("Ocorreu um erro ao enviar o nome do arquivo na função server_msg: ",error)
+    
+class Server_msgs():
 
+    def file_msg(clients:dict,client,filename:str):
+        print("Class Server_msgs função file_msg iniciada!")
+        try:
+            for index in clients.keys():
+                    if clients[index]["client"]==client:
+                        msg=b"S3RV3RF1iL3C0D3"+clients[index]["actual_username"].encode()+b"US3ERN4AM3EC0D3E"+filename.encode()
+                        break
+            print("Função file_msg finalizada!")
+            return msg
+        except Exception as error:
+            print("Aconteceu um erro ao usar a funcao file_msg da classe Server_msgs: ",error)
 
 server=Server()
