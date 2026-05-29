@@ -29,9 +29,11 @@ class Interface(Frame):
 
         self.text_frame=Frame(self.mid_frame,bg="#333A41")
         self.text_frame.place(y=5,relheight=0.9,relwidth=1)
+        
 
         self.text=Text(self.text_frame,state="disabled")
         self.text.place(relheight=1,relwidth=1)
+
 
         self.right_frame=Frame(root,bg="#59316B")
         self.right_frame.place(relheight=1,x=1024,relwidth=1)
@@ -44,12 +46,18 @@ class Interface(Frame):
         self.left_frame=Frame(root,bg="#59316B")
         self.left_frame.place(relheight=1,x=0,relwidth=0.2004)
 
+        self.username="User"
+        self.counter_tag=0
+        self.left_button=Button(self.left_frame, text="🔧",command=self.user_configuration)
+        self.left_button.place(width=50,y=10,x=10)
+
+
     def entry_enter_pressed(self,event):
         self.mid_button_send_message_func()
     
     def mid_button_send_message_func(self):
         if self.mid_entry.get().strip()!="":
-            message="Usuario: "+self.mid_entry.get()+"\n"
+            message=f"{self.username}: "+self.mid_entry.get()+"\n"
             self.mid_entry.delete(0,END)
             self.put_message_on_text(message)
             message_model=b"M3SAG3C0O%$D3"+message.encode()
@@ -70,17 +78,71 @@ class Interface(Frame):
         self.text.config(state="normal")
         self.text.insert(END,msg)
         self.text.config(state="disabled")
+        self.text.see(END)
 
     def add_message_safe(self, msg):
-        msg=msg.decode()
-        self.after(0, self.put_message_on_text, msg)
+        if b"TYP31S3V3RR" in msg:
+            msg_extractor=msg.decode().split("TYP31S3V3RR")[1]
+            msg_fist_part=msg_extractor.split("f1l3n4m3c0d&")[0]
+            filename_extractor=msg_extractor.split("f1l3n4m3c0d&")[1]
+            filename=filename_extractor.split("3NDF1L3N4M3C0D&")[0]
+            msg=msg_fist_part+filename+"\n"
+            self.after(0,self.put_message_on_text,msg)
+            self.after(0,self.file_on_text(msg,filename))
+        else:
+            msg=msg.decode()
+            self.after(0, self.put_message_on_text, msg)
+
+    def user_configuration(self):
+        user_config=Toplevel()
+        
+        user_config.geometry("400x400")
+        user_config.title("Settings")
+
+
+        username_label=Label(user_config,text="Username:")
+        username_label.place(relx=0.01,y=10)
+        
+        username_entry=Entry(user_config,)
+        username_entry.place(width=80,x=75,y=10)
+
+        def username_button_command():
+            self.username=username_entry.get().strip()
+            if self.username:
+                username_entry.delete(0,END)
+                messagebox.showinfo(message="Username alterado com sucesso!")
+                user_config.destroy()
+
+        username_button=Button(user_config,text="➜",command=username_button_command)
+        username_button.place(width=70,x=170,y=5)
+    
+    def file_on_text(self,msg,filename):
+        def click(event):
+            clicked(msg)
+        
+        def clicked(msg):
+            response=messagebox.askyesno(title="UmDiaUmChat",message="Deseja baixar o arquivo?")
+            if response:
+                print("message: ",msg)
+                msg=b"SERV3R_S3ND_F1LEC0OOODE3"+filename.encode()
+                cliente.send_msg(msg)
+                print(f"Eu quero o arquivo {filename}!")
+        tag="download"
+        initial_position=self.text.index("insert")
+        print(initial_position)
+        initial_position=str(float(initial_position)-1)
+        len_final_position=len(msg)
+        final_position=str(f"{initial_position[0]}.{len_final_position}")
+        self.text.tag_add(f"{tag+str(self.counter_tag)}",initial_position,final_position)
+        self.text.tag_bind(f"{tag+str(self.counter_tag)}","<Button-1>", click)
+        self.counter_tag=self.counter_tag+1
     
 
 if __name__=="__main__":
     root=Tk()
     app=Interface(root)
     try:
-        cliente=Client(app.add_message_safe)
+        cliente=Client(username=app.username,on_message=app.add_message_safe)
     except Exception as error:
         messagebox.showerror(title="UmDiaUmChat",message="Não foi possível conectar com o servidor!")
         print(f"Aconteceu um erro: {error}")

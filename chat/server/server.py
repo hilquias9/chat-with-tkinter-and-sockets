@@ -6,7 +6,8 @@ class Server():
     def __init__(self):
         hostname=socket.gethostname()
         private_ipv4=socket.gethostbyname(hostname)
-        self.clients=[]
+        self.clients={}
+        self.number_of_clients=0
         self.server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind((private_ipv4,7777))
@@ -17,16 +18,20 @@ class Server():
             while True:
                 try:
                     client,addr=self.server.accept()
+                    print(self.clients)
                 except socket.timeout:
                     continue
                 print(f"Client {addr} Conectado!")
-                self.clients.append(client)
+                self.clients[self.number_of_clients]={"client":client,"username_past":[]}
+                self.number_of_clients+=1
+                print(self.clients)
                 thread=threading.Thread(target=self.messages_treatment,args=(client,),daemon=True)
                 thread.start()
         except KeyboardInterrupt:
-            for client in self.clients:
-                    client.close()
-                    self.clients.remove(client)
+            for index in self.clients.keys():
+                    if self.clients[index]["client"]==client:
+                        client.close()
+                        self.clients.pop(index)
             self.server.close()
             print("Server encerrado!")
         
@@ -41,6 +46,8 @@ class Server():
                     self.broadcast(msg,client)
                 elif b"f1l3n4m3c0d&" in msg:
                     self.receive_files(client,msg)
+                elif b"S3NDdUS3N4M3!" in msg:
+                    self.receive_username(client,msg)
 
             except Exception as error:
                 print(f"Ocorreu um erro na messages_treatment, erro: {error}")
@@ -66,21 +73,28 @@ class Server():
         print("Broadcast iniciada!")
         print(f"Len da mensagem que chegou no servidor: {len_extracter}")
         print(f"Usuario: {client.getpeername()[0]} Mensagem recebida")
-        for client_obj in self.clients:
-            if client_obj!=client:
+        for index in self.clients.keys():
+            if self.clients[index]["client"]!=client:
                 try:
-                    client_obj.sendall(message)
+                    self.clients[index]["client"].sendall(message)
                     print(f"Mensagem enviada ao client: {client.getpeername()[0]}")
                 except Exception as error:
-                    self.delete_client(client_obj)
+                    self.delete_client(self.clients[index])
                     print(f"Ocorreu um erro funcao broadcast, erro: {error}")
+            else:
+                print("Não mandei pq é diferente")
+                print(self.clients)
 
     def delete_client(self,client):
         print("Delete_client iniciada!")
-        if client in self.clients:
-            print(f"Usuario desconectado: {client.getpeername()[0]}")
-            client.close()
-            self.clients.remove(client)
+        for index in self.clients.keys():
+            if self.clients[index]["client"]==client:
+                print(f"Usuario desconectado: {self.clients[index]["client"].getpeername()[0]}")
+                client.close()
+                self.clients.pop(index) 
+                break
+                
+
 
     def receive_files(self,client,file):
         print("Receive_files iniciada!")
@@ -114,6 +128,7 @@ class Server():
         with open(complete_path,"wb") as f:
             f.write(file_bytes.split(b"3NDF1L3N4M3C0D&")[0])
             print("Arquivo escrito!")
+        
         print("Função receive_files encerrada!")
         self.send_files(client,complete_path,file_name)
 
@@ -127,9 +142,19 @@ class Server():
         file_length=len(lines)+len(file)+len("4RKH1V3L3N")
         file_length=file_length+len(str(file_length))
         file=file+str(file_length).encode()+b"4RKH1V3L3N"+lines
-        for client_obj in self.clients:
-            if client_obj!=client:
-                client_obj.sendall(file)
-                print(f"Arquivo: {filename} {file_length} enviado com sucesso ao cliente {client_obj.getpeername()[0]}")
+        for index in self.clients.keys():
+            if self.clients[index]["client"]!=client:
+                self.clients[index]["client"].sendall(file)
+                print(f"Arquivo: {filename} {file_length} enviado com sucesso ao cliente {self.clients[index]["client"].getpeername()[0]}")
+    
+    def receive_username(self,client,msg):
+        username=msg.split(b"S3NDdUS3N4M3!")[1]
+        for index in self.clients.keys():
+            if self.clients[index]["client"]==client:
+                self.clients[index]["actual_username"]=username.decode()
+                self.clients[index]["username_past"].append(username.decode())
+                print("Nome de usuario adicionado com sucesso!")
+        print(self.clients)
+
 
 server=Server()

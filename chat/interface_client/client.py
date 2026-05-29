@@ -5,16 +5,26 @@ import os
 
 
 class  Client:
-    def __init__(self,on_message):
+    def __init__(self,username:str,on_message):
         hostname=socket.gethostname()
         private_ipv4=socket.gethostbyname(hostname)
         self.client=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.client.settimeout(1)
+        self.username=username
         self.on_message=on_message
         self.client.connect((private_ipv4,7777))
+        self.send_username(username)
         print("CONECTADO!")
         thread=threading.Thread(target=self.receive_messages,daemon=True)
         thread.start()
+    
+    def send_username(self,username):
+        try:
+            msg=b"S3NDdUS3N4M3!"+username.encode()
+            self.client.send(msg)
+        except Exception as error:
+            print("Ocorreu um erro ao enviar o username: ",error)
+            self.client.close()
     
     def send_msg(self,msg:bytes):
         try:
@@ -38,6 +48,8 @@ class  Client:
                     elif b"f1l3n4m3c0d&" in msg:
                         print("Arquivo vai ser recebido")
                         self.receive_files(msg)
+                    elif b"S3RV3RF1iL3C0D3" in msg:
+                        self.server_msgs(msg)
                 except socket.timeout:
                     continue
                 except ConnectionResetError:
@@ -114,3 +126,12 @@ class  Client:
             print("Arquivo escrito!")
         print("Função receive_files encerrada!")
         
+    def server_msgs(self,msg):
+        if b"S3RV3RF1iL3C0D3" in msg:
+            extractor=msg.split(b"S3RV3RF1iL3C0D3")[1]
+            name=extractor.split(b"US3ERN4AM3EC0D3E")[0]
+            filename=extractor.split(b"US3ERN4AM3EC0D3E")[1]
+            message=f"TYP31S3V3RR[SERVER MESSAGE]: O usuario {name.decode()} enviou f1l3n4m3c0d&{filename.decode()}3NDF1L3N4M3C0D&\n".encode()
+            self.on_message(message)
+
+
