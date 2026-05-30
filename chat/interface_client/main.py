@@ -109,9 +109,15 @@ class Interface(Frame):
         def username_button_command():
             self.username=username_entry.get().strip()
             if self.username:
-                username_entry.delete(0,END)
-                messagebox.showinfo(message="Username alterado com sucesso!")
-                user_config.destroy()
+                try:
+                    cliente.send_msg(b"S3NDdUS3N4M3!"+self.username.encode())
+                    username_entry.delete(0,END)
+                    messagebox.showinfo(message="Username alterado com sucesso!")
+                    user_config.destroy()
+                except Exception as error:
+                    print("Ocorreu um error ao tentar enviar a mudança de nome de usuário: ",error)
+                    messagebox.showerror(title="UmDiaUmChat",message="Não foi possível alterar o nome de usuário!")
+        
 
         username_button=Button(user_config,text="➜",command=username_button_command)
         username_button.place(width=70,x=170,y=5)
@@ -128,12 +134,11 @@ class Interface(Frame):
                 cliente.send_msg(msg)
                 print(f"Eu quero o arquivo {filename}!")
         tag="download"
-        initial_position=self.text.index("insert")
-        print(initial_position)
-        initial_position=str(float(initial_position)-1)
-        len_final_position=len(msg)
-        final_position=str(f"{initial_position[0]}.{len_final_position}")
-        self.text.tag_add(f"{tag+str(self.counter_tag)}",initial_position,final_position)
+        start = self.text.index("end-1c linestart")
+        end = self.text.index(f"{start}+{len(msg)}c")
+        print("Posição inicial: ",start)
+        print("Posição final: ",end)
+        self.text.tag_add(f"{tag}{self.counter_tag}",start,end)
         self.text.tag_bind(f"{tag+str(self.counter_tag)}","<Button-1>", click)
         self.counter_tag=self.counter_tag+1
     
