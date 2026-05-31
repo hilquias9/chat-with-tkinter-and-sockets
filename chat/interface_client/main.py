@@ -64,7 +64,6 @@ class Interface(Frame):
             message_length=len(message_model)
             message_length=message_length+len(str(message_length).encode())+len(b"M33SS4GL3N")
             message=b"M3SAG3C0O%$D3"+(f"{message_length}").encode()+b"M33SS4GL3N"+message.encode()
-            print("Len da message: {}\nLen da variavel message_length: {}".format(len(message),message_length))
             cliente.send_msg(message)
     
     def mid_button_send_files_func(self):
@@ -89,6 +88,8 @@ class Interface(Frame):
             msg=msg_fist_part+filename+"\n"
             self.after(0,self.put_message_on_text,msg)
             self.after(0,self.file_on_text(msg,filename))
+        elif b"S3RV3RF0ORC3U53RN4M3" in msg:
+            self.username=msg.split(b"S3RV3RF0ORC3U53RN4M3")[1].decode()
         else:
             msg=msg.decode()
             self.after(0, self.put_message_on_text, msg)
@@ -106,6 +107,7 @@ class Interface(Frame):
         username_entry=Entry(user_config,)
         username_entry.place(width=80,x=75,y=10)
 
+
         def username_button_command():
             self.username=username_entry.get().strip()
             if self.username:
@@ -117,6 +119,10 @@ class Interface(Frame):
                 except Exception as error:
                     print("Ocorreu um error ao tentar enviar a mudança de nome de usuário: ",error)
                     messagebox.showerror(title="UmDiaUmChat",message="Não foi possível alterar o nome de usuário!")
+        def username_enter_pressed(event):
+            username_button_command()
+        
+        username_entry.bind("<Return>",username_enter_pressed)
         
 
         username_button=Button(user_config,text="➜",command=username_button_command)
@@ -129,18 +135,17 @@ class Interface(Frame):
         def clicked(msg):
             response=messagebox.askyesno(title="UmDiaUmChat",message="Deseja baixar o arquivo?")
             if response:
-                print("message: ",msg)
                 msg=b"SERV3R_S3ND_F1LEC0OOODE3"+filename.encode()
                 cliente.send_msg(msg)
-                print(f"Eu quero o arquivo {filename}!")
         tag="download"
+        color_tag="colortag"
         start = self.text.index("end-2c").split(".")[0]
         start=start+".0"
         end = self.text.index("end-2c")
-        print("Posição inicial: ",start)
-        print("Posição final: ",end)
         self.text.tag_add(f"{tag}{self.counter_tag}",start,end)
         self.text.tag_bind(f"{tag+str(self.counter_tag)}","<Button-1>", click)
+        self.text.tag_config(color_tag+str(self.counter_tag),foreground="red")
+        self.text.tag_add(color_tag+str(self.counter_tag), start, end)
         self.counter_tag=self.counter_tag+1
     
 
