@@ -1,12 +1,14 @@
 import socket
 import threading
 import os
+import random
 
 class Server():
     def __init__(self):
         hostname=socket.gethostname()
         private_ipv4=socket.gethostbyname(hostname)
         self.clients={}
+        self.nicknames=[]
         self.number_of_clients=0
         self.server=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -18,13 +20,10 @@ class Server():
             while True:
                 try:
                     client,addr=self.server.accept()
-                    print(self.clients)
                 except socket.timeout:
                     continue
-                print(f"Client {addr} Conectado!")
                 self.clients[self.number_of_clients]={"client":client,"username_past":[]}
                 self.number_of_clients+=1
-                print(self.clients)
                 thread=threading.Thread(target=self.messages_treatment,args=(client,),daemon=True)
                 thread.start()
         except KeyboardInterrupt:
@@ -36,7 +35,6 @@ class Server():
             print("Server encerrado!")
         
     def messages_treatment(self,client):
-        print("Entrei no tratamento de mensagens!")
         while True:
             try:
                 msg=client.recv(2048)
@@ -60,11 +58,8 @@ class Server():
         header_extracter=msg.split(b"M3SAG3C0O%$D3")[1]
         len_extracter=header_extracter.split(b"M33SS4GL3N")[0]
         len_msg=len(msg)
-        print("Tamanho da mensagem: ", len_extracter)
-        print("Tamanho esperado: ",len_msg)
         data_collector=b""
         if int(len_extracter.decode())>len_msg:
-            print("Len extracter menor, entrei no while")
             while True:
                 data=client.recv(2048)
                 if not data: break
@@ -72,26 +67,18 @@ class Server():
                 data_collector+=data
                 if len_msg==int(len_extracter.decode()):break
         message=msg+data_collector
-        print("Broadcast iniciada!")
-        print(f"Len da mensagem que chegou no servidor: {len_extracter}")
-        print(f"Usuario: {client.getpeername()[0]} Mensagem recebida")
         for index in self.clients.keys():
             if self.clients[index]["client"]!=client:
                 try:
                     self.clients[index]["client"].sendall(message)
-                    print(f"Mensagem enviada ao client: {client.getpeername()[0]}")
                 except Exception as error:
                     self.delete_client(self.clients[index])
                     print(f"Ocorreu um erro funcao broadcast, erro: {error}")
-            else:
-                print("Não mandei pq é diferente")
-                print(self.clients)
+
 
     def delete_client(self,client):
-        print("Delete_client iniciada!")
         for index in self.clients.keys():
             if self.clients[index]["client"]==client:
-                print(f"Usuario desconectado: {self.clients[index]["client"].getpeername()[0]}")
                 client.close()
                 self.clients.pop(index) 
                 break
@@ -99,7 +86,6 @@ class Server():
 
 
     def receive_files(self,client,file):
-        print("Receive_files iniciada!")
         extract_file_name=file.split(b"f1l3n4m3c0d&")
         extract_file_name2=extract_file_name[1].split(b"3NDF1L3N4M3C0D&")
         file_name=extract_file_name2[0].decode()
@@ -107,10 +93,6 @@ class Server():
         file_length=int(extract_file_length[0].decode())
         file_bytes=extract_file_length[1]
         total=len(file)
-        print("Nome do arquivo: ",file_name)
-        print("Cliente: ",client.getpeername()[0])
-        print("Tamanho esperado: ",file_length)
-        print("Tamanho até o momento: ",len(file))
         while True:
             try:
                 if file_length==total:
@@ -120,7 +102,6 @@ class Server():
                     break
                 file_bytes=file_bytes+lines
                 total=total+len(lines)
-                print(f"total: ",total)
             except Exception as error:
                 print(f"Ocorreu um erro na Receive_files: {error}")
                 self.delete_client(client)
@@ -130,9 +111,6 @@ class Server():
         os.makedirs(name="downloads",exist_ok=True)
         with open(complete_path,"wb") as f:
             f.write(file_bytes.split(b"3NDF1L3N4M3C0D&")[0])
-            print("Arquivo escrito!")
-        
-        print("Função receive_files encerrada!")
         msg=Server_msgs.file_msg(self.clients,client,file_name)
         self.send_msg(client=client,msg=msg)
         
@@ -142,11 +120,9 @@ class Server():
         filename=filename.decode()
         path=os.getcwd()
         complete_path=f"{path}\\downloads\\{filename}"
-        print("Função send_file iniciada!")
         file=b"f1l3n4m3c0d&"+filename.encode()+b"3NDF1L3N4M3C0D&"
         with open(complete_path,"rb") as f:
             lines=f.read()
-            print("Len de lines: ",len(lines))
             lines=lines+b"3NDF1L3N4M3C0D&"
         file_length=len(lines)+len(file)+len("4RKH1V3L3N")
         file_length=file_length+len(str(file_length))
@@ -154,16 +130,27 @@ class Server():
         for index in self.clients.keys():
             if self.clients[index]["client"]!=client:
                 self.clients[index]["client"].sendall(file)
-                print(f"Arquivo: {filename} {file_length} enviado com sucesso ao cliente {self.clients[index]["client"].getpeername()[0]}")
+                
     
     def receive_username(self,client,msg):
         username=msg.split(b"S3NDdUS3N4M3!")[1]
         for index in self.clients.keys():
             if self.clients[index]["client"]==client:
-                self.clients[index]["actual_username"]=username.decode()
-                self.clients[index]["username_past"].append(username.decode())
-                print("Nome de usuario adicionado com sucesso!")
-        print(self.clients)
+                if username.decode() not in self.nicknames:
+                    self.clients[index]["actual_username"]=username.decode()
+                    self.clients[index]["username_past"].append(username.decode())
+                    self.nicknames.append(username.decode())
+                else:
+                    while True:
+                        nickname=username.decode()+str(random.randint(0,100))
+                        if nickname not in self.nicknames:
+                            self.clients[index]["actual_username"]=nickname
+                            self.clients[index]["username_past"].append(nickname)
+                            self.nicknames.append(nickname)
+                            msg=Server_msgs.server_force_username(nickname)
+                            self.send_msg(client,msg)
+                            break
+
     
     def send_msg(self,client,msg):
         for index in self.clients.keys():
@@ -175,17 +162,26 @@ class Server():
                         print("Ocorreu um erro ao enviar o nome do arquivo na função server_msg: ",error)
     
 class Server_msgs():
-
-    def file_msg(clients:dict,client,filename:str):
-        print("Class Server_msgs função file_msg iniciada!")
+    def find_client(clients:dict,client):
         try:
             for index in clients.keys():
                     if clients[index]["client"]==client:
-                        msg=b"S3RV3RF1iL3C0D3"+clients[index]["actual_username"].encode()+b"US3ERN4AM3EC0D3E"+filename.encode()
-                        break
-            print("Função file_msg finalizada!")
+                        return index
+        except Exception as error:
+            print("Aconteceu um erro ao usar a funcao find_client da classe Server_msgs: ",error)
+
+
+    def file_msg(clients:dict,client,filename:str):
+        try:
+            index=Server_msgs.find_client(clients,client)
+            msg=b"S3RV3RF1iL3C0D3"+clients[index]["actual_username"].encode()+b"US3ERN4AM3EC0D3E"+filename.encode()
             return msg
         except Exception as error:
             print("Aconteceu um erro ao usar a funcao file_msg da classe Server_msgs: ",error)
+    
+
+    def server_force_username(username):
+        msg=b"S3RV3RF0ORC3U53RN4M3"+username.encode()
+        return msg
 
 server=Server()
