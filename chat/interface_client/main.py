@@ -134,8 +134,9 @@ class Interface(Frame):
                 cliente.send_msg(msg)
                 print(f"Eu quero o arquivo {filename}!")
         tag="download"
-        start = self.text.index("end-1c linestart")
-        end = self.text.index(f"{start}+{len(msg)}c")
+        start = self.text.index("end-2c").split(".")[0]
+        start=start+".0"
+        end = self.text.index("end-2c")
         print("Posição inicial: ",start)
         print("Posição final: ",end)
         self.text.tag_add(f"{tag}{self.counter_tag}",start,end)
