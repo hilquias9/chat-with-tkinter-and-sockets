@@ -42,6 +42,7 @@ This helps prevent issues where messages and files get mixed together during tra
 - Python
 - socket
 - threading
+- Tkinter
 # Future Goals
 - Improve multi-client handling
 - Add queue systems
