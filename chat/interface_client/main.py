@@ -139,8 +139,7 @@ class Interface(Frame):
                 cliente.send_msg(msg)
         tag="download"
         color_tag="colortag"
-        start = self.text.index("end-2c").split(".")[0]
-        start=start+".0"
+        start = self.text.index(f"end-{len(msg)}c")
         end = self.text.index("end-2c")
         self.text.tag_add(f"{tag}{self.counter_tag}",start,end)
         self.text.tag_bind(f"{tag+str(self.counter_tag)}","<Button-1>", click)
