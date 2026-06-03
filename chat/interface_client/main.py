@@ -16,9 +16,11 @@ class Interface(Frame):
         self.mid_frame=Frame(root,bg="#7D4698")
         self.mid_frame.place(x=256,relheight=1,relwidth=0.6)
 
+
         self.mid_entry=Entry(self.mid_frame)
         self.mid_entry.place(x=80,y=680,width=5,relwidth=0.8)
         self.mid_entry.bind("<Return>",self.entry_enter_pressed)
+
 
         self.mid_button_send_message=Button(self.mid_frame,text="➜",command=self.mid_button_send_message_func)
         self.mid_button_send_message.place(width=50,y=677,x=710)
@@ -42,14 +44,23 @@ class Interface(Frame):
         self.right_label=Label(self.right_frame,text="Histórico\nde\nUsuários",font=("times",18),bg="#59316B",fg="white")
         self.right_label.place(relx=0.06,y=5)
 
+        self.right_text_frame=Frame(self.right_frame,bg="#59316B")
+        self.right_text_frame.place(x=10,relwidth=0.185,y=100,relheight=0.8)
+
+
+        self.right_text=Text(self.right_text_frame,state="disabled")
+        self.right_text.place(relheight=1,relwidth=1)
+
 
         self.left_frame=Frame(root,bg="#59316B")
         self.left_frame.place(relheight=1,x=0,relwidth=0.2004)
+
 
         self.username="User"
         self.counter_tag=0
         self.left_button=Button(self.left_frame, text="🔧",command=self.user_configuration)
         self.left_button.place(width=50,y=10,x=10)
+
 
 
     def entry_enter_pressed(self,event):
