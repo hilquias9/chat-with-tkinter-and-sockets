@@ -161,6 +161,17 @@ class Server():
                         self.delete_client(self.clients[index]["client"])
                         print("Ocorreu um erro ao enviar o nome do arquivo na função server_msg: ",error)
     
+    def send_username_2_everyone(self,index):
+        try:
+            new_username=self.clients[index]["actual_username"]
+            old_username=self.clients[index]["username_past"][-2]
+            msg=Server_msgs.send_username_2_everyone(old_username,new_username)
+            for index in self.clients.keys():
+                self.clients[index]["client"].send(msg)
+        except Exception as error:
+            print("Ocorreu um erro ao usar a função send_username_2_everyone: ",error)
+
+    
 class Server_msgs():
     def find_client(clients:dict,client):
         try:
@@ -182,6 +193,10 @@ class Server_msgs():
 
     def server_force_username(username):
         msg=b"S3RV3RF0ORC3U53RN4M3"+username.encode()
+        return msg
+    
+    def send_username_2_everyone(old_username,new_username):
+        msg=b"S3RV3RS3ND0LDU53RNA4M3E"+old_username.encode()+b"NE3EWNA4AME3"+new_username.encode()
         return msg
 
 server=Server()
