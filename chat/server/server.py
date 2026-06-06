@@ -134,12 +134,16 @@ class Server():
     
     def receive_username(self,client,msg):
         username=msg.split(b"S3NDdUS3N4M3!")[1]
+        print("O username chegou: ",username)
         for index in self.clients.keys():
             if self.clients[index]["client"]==client:
                 if username.decode() not in self.nicknames:
                     self.clients[index]["actual_username"]=username.decode()
                     self.clients[index]["username_past"].append(username.decode())
                     self.nicknames.append(username.decode())
+                    if len(self.clients[index]["username_past"])>1:
+                        self.send_username_2_everyone(index)
+                    break
                 else:
                     while True:
                         nickname=username.decode()+str(random.randint(0,100))
@@ -149,7 +153,10 @@ class Server():
                             self.nicknames.append(nickname)
                             msg=Server_msgs.server_force_username(nickname)
                             self.send_msg(client,msg)
+                            if len(self.clients[index]["username_past"])>1:
+                                self.send_username_2_everyone(index)
                             break
+        
 
     
     def send_msg(self,client,msg):
@@ -163,11 +170,14 @@ class Server():
     
     def send_username_2_everyone(self,index):
         try:
+            print("FUNÇÃO SEND_USERNAME_2_EVERYONE INICIADA")
             new_username=self.clients[index]["actual_username"]
             old_username=self.clients[index]["username_past"][-2]
             msg=Server_msgs.send_username_2_everyone(old_username,new_username)
+            print("Mensagem que vai ser enviada: ",msg)
             for index in self.clients.keys():
                 self.clients[index]["client"].send(msg)
+            print("Função finalizada!")
         except Exception as error:
             print("Ocorreu um erro ao usar a função send_username_2_everyone: ",error)
 

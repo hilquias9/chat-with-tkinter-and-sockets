@@ -20,4 +20,3 @@ clients={0:{"actual_username":"Ses","Usernames":["Ses","Hilquias"],"Client":("lk
 carro={}
 carro.setdefault("marca",{})["modelo"]="compass"
 carro.setdefault("marca2",{})["modelo"]="renegade"
-

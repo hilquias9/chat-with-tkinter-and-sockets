@@ -101,6 +101,9 @@ class Interface(Frame):
             self.after(0,self.file_on_text(msg,filename))
         elif b"S3RV3RF0ORC3U53RN4M3" in msg:
             self.username=msg.split(b"S3RV3RF0ORC3U53RN4M3")[1].decode()
+        elif b"S3RV3RS3ND0LDU53RNA4M3E" in msg:
+            message=self.right_text_extractor(msg)
+            self.after(0,self.put_text_right_text(message))
         else:
             msg=msg.decode()
             self.after(0, self.put_message_on_text, msg)
@@ -158,6 +161,20 @@ class Interface(Frame):
         self.text.tag_add(color_tag+str(self.counter_tag), start, end)
         self.counter_tag=self.counter_tag+1
     
+    def right_text_extractor(self,msg):
+        print("Função right_text_extractor")
+        if b"S3RV3RS3ND0LDU53RNA4M3E" in msg:
+            old_username=msg.split(b"NE3EWNA4AME3")[0]
+            new_username=msg.split(b"NE3EWNA4AME3")[1]
+            old_username=old_username.split(b"S3RV3RS3ND0LDU53RNA4M3E")[1]
+            message="O usuário {} agora está sendo chamado de {}\n\n\n".format(old_username.decode(),new_username.decode())
+            return message
+
+    def put_text_right_text(self,msg):
+        self.right_text.config(state="normal")
+        self.right_text.insert(END,msg)
+        self.right_text.config(state="disabled")
+        self.right_text.see(END)
 
 if __name__=="__main__":
     root=Tk()

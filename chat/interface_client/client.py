@@ -49,6 +49,9 @@ class  Client:
                     elif b"S3RV3RF0ORC3U53RN4M3" in msg:
                         self.username=msg.split(b"S3RV3RF0ORC3U53RN4M3")[1].decode()
                         self.on_message(msg)
+                    elif b"S3RV3RS3ND0LDU53RNA4M3E":
+                        print("CLIENTE RECEBEU SERVER NEW AND OLD USERNAME")
+                        self.on_message(msg)
                 except socket.timeout:
                     continue
                 except ConnectionResetError:
