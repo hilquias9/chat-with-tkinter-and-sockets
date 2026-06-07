@@ -39,6 +39,7 @@ class  Client:
             while True:
                 try:
                     msg=self.client.recv(2048)
+                    print("CHEGOU MENSAGEM: ",msg)
                     if b"M3SAG3C0O%$D3" in msg:
                         message=self.message_extractor(msg)
                         self.on_message(message)
@@ -50,7 +51,9 @@ class  Client:
                         self.username=msg.split(b"S3RV3RF0ORC3U53RN4M3")[1].decode()
                         self.on_message(msg)
                     elif b"S3RV3RS3ND0LDU53RNA4M3E":
-                        print("CLIENTE RECEBEU SERVER NEW AND OLD USERNAME")
+                        print("CLIENTE RECEBEU SERVER NEW AND OLD USERNAME: ",msg)
+                        self.on_message(msg)
+                    elif b"S3RV3RW3ELC0OM3MS5G" in msg:
                         self.on_message(msg)
                 except socket.timeout:
                     continue

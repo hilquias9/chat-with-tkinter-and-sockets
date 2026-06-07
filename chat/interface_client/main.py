@@ -104,6 +104,9 @@ class Interface(Frame):
         elif b"S3RV3RS3ND0LDU53RNA4M3E" in msg:
             message=self.right_text_extractor(msg)
             self.after(0,self.put_text_right_text(message))
+        elif b"S3RV3RW3ELC0OM3MS5G" in msg:
+            msg=f"O usuário {msg.split(b"S3RV3RW3ELC0OM3MS5G")[1].decode()} entrou no chat!\n\n\n"
+            self.after(0,self.put_text_right_text(msg))
         else:
             msg=msg.decode()
             self.after(0, self.put_message_on_text, msg)
