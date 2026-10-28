@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import filedialog
-from client import Client
+from interface_client.connection import Client
 import os
 
 
